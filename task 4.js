@@ -1002,7 +1002,7 @@ const ids = `51-88,52-87
 // part 1
 
 // returns true if 1st pair fully contains seconds one
-const pairs_checker = (pairs) => {
+const pairs_overlap_checker = (pairs) => {
   const [pair1, pair2] = pairs.split(",");
   const [pair1_start, pair1_end] = pair1.split("-");
   const [pair2_start, pair2_end] = pair2.split("-");
@@ -1012,11 +1012,11 @@ const pairs_checker = (pairs) => {
 };
 
 console.assert(
-  pairs_checker("2-8,3-7") == true,
+  pairs_overlap_checker("2-8,3-7") == true,
   "For example, 2-8 fully contains 3-7"
 );
 console.assert(
-  pairs_checker("6-6,4-6") == true,
+  pairs_overlap_checker("6-6,4-6") == true,
   "and 6-6 is fully contained by 4-6"
 );
 
@@ -1030,7 +1030,7 @@ const test_ids = `2-4,6-8
 console.assert(
   test_ids
     .split("\n")
-    .map(pairs_checker)
+    .map(pairs_overlap_checker)
     .reduce((a, c) => +a + +c, 0) == 2,
   "In pairs where one assignment fully contains the other, one Elf in the pair would be exclusively cleaning sections their partner will already be cleaning, so these seem like the most in need of reconsideration. In this example, there are 2 such pairs"
 );
@@ -1039,6 +1039,6 @@ console.assert(
 console.table({
   "result 1": ids
     .split("\n")
-    .map(pairs_checker)
+    .map(pairs_overlap_checker)
     .reduce((a, c) => +a + +c, 0),
 });
