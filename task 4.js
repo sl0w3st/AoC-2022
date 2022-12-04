@@ -1042,3 +1042,49 @@ console.table({
     .map(pairs_overlap_checker)
     .reduce((a, c) => +a + +c, 0),
 });
+
+// part 2
+
+// returns true if there any overlap
+const pairs_any_overlap_checker = (pairs) => {
+  const [pair1, pair2] = pairs.split(",");
+  const [pair1_start, pair1_end] = pair1.split("-");
+  const [pair2_start, pair2_end] = pair2.split("-");
+
+  if (+pair1_start < +pair2_start && +pair1_end < +pair2_start) return false; // every number in pair 1 is smaller than smallest from pair 2
+  if (+pair1_start > +pair2_end && +pair1_end > +pair2_end) return false; // every number in pair 1 is bigger than biggest from pair 2
+  return true;
+};
+
+console.assert(
+  pairs_any_overlap_checker("5-7,7-9") == true,
+  "5-7,7-9 overlaps in a single section, 7."
+);
+console.assert(
+  pairs_any_overlap_checker("2-8,3-7") == true,
+  "2-8,3-7 overlaps all of the sections 3 through 7"
+);
+console.assert(
+  pairs_any_overlap_checker("6-6,4-6") == true,
+  "6-6,4-6 overlaps in a single section, 6"
+);
+console.assert(
+  pairs_any_overlap_checker("2-6,4-8") == true,
+  "2-6,4-8 overlaps in sections 4, 5, and 6."
+);
+
+console.assert(
+  test_ids
+    .split("\n")
+    .map(pairs_any_overlap_checker)
+    .reduce((a, c) => +a + +c, 0) == 4,
+  "So, in this example, the number of overlapping assignment pairs is 4."
+);
+
+// solution for 2nd part
+console.table({
+  "result 2": ids
+    .split("\n")
+    .map(pairs_any_overlap_checker)
+    .reduce((a, c) => +a + +c, 0),
+});
