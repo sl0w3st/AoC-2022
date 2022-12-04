@@ -1001,7 +1001,7 @@ const ids = `51-88,52-87
 
 // part 1
 
-// returns true if 1st pair fully contains seconds one
+// returns true if any pair fully contains seconds one
 const pairs_overlap_checker = (pairs) => {
   const [pair1, pair2] = pairs.split(",");
   const [pair1_start, pair1_end] = pair1.split("-");
