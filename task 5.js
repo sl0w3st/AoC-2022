@@ -604,23 +604,22 @@ const move_method_reversed = (stacks, { from, to, amount }) => {
   stacks[+to - 1].push(...items);
 };
 
+const get_n_moves = (moves, amount) => {
+  if (typeof moves != "string") throw "Bad moves arg";
+  return moves.split("\n").slice(0, amount).join("\n");
+};
+
 console.assert(
-  crane(test_stacks, test_moves.split("\n").slice(0, 1).join("\n"))[0].join(
-    "|"
-  ) == "Z|N|D",
+  crane(test_stacks, get_n_moves(test_moves, 1))[0].join("|") == "Z|N|D",
   "First stack after first move"
 );
 
 console.assert(
-  crane(test_stacks, test_moves.split("\n").slice(0, 2).join("\n"))[2].join(
-    "|"
-  ) == "P|D|N|Z",
+  crane(test_stacks, get_n_moves(test_moves, 2))[2].join("|") == "P|D|N|Z",
   "Last stack after second move"
 );
 console.assert(
-  crane(test_stacks, test_moves.split("\n").slice(0, 3).join("\n"))[0].join(
-    "|"
-  ) == "C|M",
+  crane(test_stacks, get_n_moves(test_moves, 3))[0].join("|") == "C|M",
   "First stack after third move"
 );
 console.assert(
@@ -650,28 +649,22 @@ const move_method_regular = (stacks, { from, to, amount }) => {
 };
 
 console.assert(
-  crane(
-    test_stacks,
-    test_moves.split("\n").slice(0, 1).join("\n"),
-    move_method_regular
-  )[0].join("|") == "Z|N|D",
+  crane(test_stacks, get_n_moves(test_moves, 1), move_method_regular)[0].join(
+    "|"
+  ) == "Z|N|D",
   "First stack after first move"
 );
 
 console.assert(
-  crane(
-    test_stacks,
-    test_moves.split("\n").slice(0, 2).join("\n"),
-    move_method_regular
-  )[2].join("|") == "P|Z|N|D",
+  crane(test_stacks, get_n_moves(test_moves, 2), move_method_regular)[2].join(
+    "|"
+  ) == "P|Z|N|D",
   "Last stack after second move"
 );
 console.assert(
-  crane(
-    test_stacks,
-    test_moves.split("\n").slice(0, 3).join("\n"),
-    move_method_regular
-  )[0].join("|") == "M|C",
+  crane(test_stacks, get_n_moves(test_moves, 3), move_method_regular)[0].join(
+    "|"
+  ) == "M|C",
   "First stack after third move"
 );
 console.assert(
