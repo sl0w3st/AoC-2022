@@ -585,18 +585,23 @@ console.assert(
   "Item in middle of stacks table is [C]"
 );
 
-const crane = (stacks_lines, move_lines) => {
+const crane = (
+  stacks_lines,
+  move_lines,
+  move_method = move_method_reversed
+) => {
   const moves = moves_parser(move_lines);
   const stacks = stacks_parser(stacks_lines);
 
-  moves.forEach((move) => {
-    const { from, to, amount } = move;
-    const items = stacks[+from - 1].splice(-amount, amount);
-    items.reverse();
-    stacks[+to - 1].push(...items);
-  });
+  moves.forEach((move) => move_method(stacks, move));
 
   return stacks;
+};
+
+const move_method_reversed = (stacks, { from, to, amount }) => {
+  const items = stacks[+from - 1].splice(-amount, amount);
+  items.reverse();
+  stacks[+to - 1].push(...items);
 };
 
 console.assert(
@@ -633,6 +638,58 @@ console.assert(
 // solution for 1st part
 console.table({
   "result 1": crane(...drawing.split("\n\n"))
+    .map((stack) => (stack.length && stack[stack.length - 1]) || "")
+    .join(""),
+});
+
+// part 2
+
+const move_method_regular = (stacks, { from, to, amount }) => {
+  const items = stacks[+from - 1].splice(-amount, amount);
+  stacks[+to - 1].push(...items);
+};
+
+console.assert(
+  crane(
+    test_stacks,
+    test_moves.split("\n").slice(0, 1).join("\n"),
+    move_method_regular
+  )[0].join("|") == "Z|N|D",
+  "First stack after first move"
+);
+
+console.assert(
+  crane(
+    test_stacks,
+    test_moves.split("\n").slice(0, 2).join("\n"),
+    move_method_regular
+  )[2].join("|") == "P|Z|N|D",
+  "Last stack after second move"
+);
+console.assert(
+  crane(
+    test_stacks,
+    test_moves.split("\n").slice(0, 3).join("\n"),
+    move_method_regular
+  )[0].join("|") == "M|C",
+  "First stack after third move"
+);
+console.assert(
+  crane(test_stacks, test_moves)[1].join("|") == "M",
+  "Middle stack after last move"
+);
+
+console.assert(
+  crane(test_stacks, test_moves, move_method_regular)
+    .map((stack) => (stack.length && stack[stack.length - 1]) || "")
+    .join("") == "MCD",
+  "In this example, the CrateMover 9001 has put the crates in a totally different order: MCD."
+);
+
+const [part2_stacks, part2_moves] = drawing.split("\n\n");
+
+console.table({
+  "result 1": crane(part2_stacks, part2_moves, move_method_regular)
     .map((stack) => (stack.length && stack[stack.length - 1]) || "")
     .join(""),
 });
