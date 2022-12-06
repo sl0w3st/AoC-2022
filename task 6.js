@@ -44,3 +44,31 @@ console.assert(
 console.table({
   "result 1": marker_finder(signal),
 });
+
+// 2nd part
+
+console.assert(
+  marker_finder(`mjqjpqmgbljsphdztnvjfqwrcgsmlb`, 14) == 19,
+  "mjqjpqmgbljsphdztnvjfqwrcgsmlb: first marker after character 19"
+);
+console.assert(
+  marker_finder(`bvwbjplbgvbhsrlpgdmjqwftvncz`, 14) == 23,
+  "bvwbjplbgvbhsrlpgdmjqwftvncz: first marker after character 23"
+);
+console.assert(
+  marker_finder(`nppdvjthqldpwncqszvftbrmjlhg`, 14) == 23,
+  "nppdvjthqldpwncqszvftbrmjlhg: first marker after character 23"
+);
+console.assert(
+  marker_finder(`nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg`, 14) == 29,
+  "nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg: first marker after character 29"
+);
+console.assert(
+  marker_finder(`zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw`, 14) == 26,
+  "zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw: first marker after character 26"
+);
+
+// solution for 2nd part
+console.table({
+  "result 2": marker_finder(signal, 14),
+});
