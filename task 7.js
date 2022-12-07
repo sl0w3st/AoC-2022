@@ -1203,6 +1203,15 @@ const solution_1 = (input) => {
   return backrack_search(target_folders, size_threshold);
 };
 
+const solution_1_dumbest = (input) => {
+  const tree = parse_tree(input);
+  const all_folders = walk_tree_dumb(tree);
+  const target_folders = all_folders.filter((f) => f.size <= size_threshold);
+  target_folders.sort((a, b) => +a.size - +b.size);
+
+  return target_folders.reduce((a, f) => +a + +f.size, 0);
+};
+
 // solution for 1st part
 console.table({
   "part 1, walk_tree": walk_tree(parse_tree(input), size_threshold).reduce(
@@ -1218,6 +1227,8 @@ console.table({
   "part 1, walk_tree_dumb": solution_1_dumb(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
 
   "part 1, backrack_search": solution_1(input), // the closest sum of all elements: https://www.baeldung.com/cs/subset-of-numbers-closest-to-target
+
+  "part 1, walk_tree_dumbest": solution_1_dumbest(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
 });
 
 // part 1, walk_tree
@@ -1228,8 +1239,10 @@ console.table({
 // 96176
 // part 1, backrack_search
 // 99978
-
 // all guesses are wrong
+
+// part 1, walk_tree_dumbest - right answer
+// 1454188
 
 // 2nd part
 const solution_2 = (input) => {};
