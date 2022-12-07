@@ -1100,8 +1100,6 @@ const parse_tree = (input) => {
 
 const test_tree_1 = parse_tree(test_case_1);
 
-console.log({ test_tree_1 });
-
 console.assert(
   test_tree_1.folders.a.folders.e.size == 584,
   "The total size of directory e is 584 because it contains a single file i of size 584 and no other directories"
@@ -1119,93 +1117,27 @@ console.assert(
   "As the outermost directory, / contains every file. Its total size is 48381165, the sum of the size of every file."
 );
 
-// possible problem in order in which folders get picked via .values()?
-
-const walk_tree = (folder, size_threshold, target = []) => {
-  const total_size = target.reduce((a, f) => +a + +f.size, 0);
-  if (+size_threshold - +total_size >= folder.size) {
-    target.push(folder);
-  }
-  Object.values(folder.folders).forEach((folder) =>
-    walk_tree(folder, size_threshold, target)
-  );
-
-  return target;
-};
-
-const walk_tree_excluding = (folder, size_threshold, target = []) => {
-  const total_size = target.reduce((a, f) => +a + +f.size, 0);
-  if (+size_threshold - +total_size >= folder.size) {
-    target.push(folder);
-  } else
-    Object.values(folder.folders).forEach((folder) =>
-      walk_tree(folder, size_threshold, target)
-    );
-
-  return target;
-};
-
-const walk_tree_dumb = (folder, target = []) => {
+const walk_over_all_folders = (folder, target = []) => {
   target.push(folder);
   Object.values(folder.folders).forEach((folder) =>
-    walk_tree_dumb(folder, target)
+    walk_over_all_folders(folder, target)
   );
 
   return target;
-};
-
-const backrack_search = (arr, target) => {
-  const backrack = (i, sum) => {
-    if (sum > target) return 0;
-    if (i == arr.length) return sum;
-
-    const pick = backrack(i + 1, sum + arr[i].size);
-    const leave = backrack(i + 1, sum);
-
-    return Math.max(pick, leave);
-  };
-
-  return backrack(0, 0);
 };
 
 const size_threshold = 100000;
 
 console.assert(
-  walk_tree(test_tree_1, size_threshold).reduce((a, f) => +a + +f.size, 0) ==
-    95437,
-  "In the example above, these directories are a and e; the sum of their total sizes is 95437 (94853 + 584). (As in this example, this process can count files more than once!)"
-);
-
-console.assert(
-  walk_tree_dumb(test_tree_1)
+  walk_over_all_folders(test_tree_1)
     .filter((f) => f.size <= size_threshold)
     .reduce((a, f) => +a + +f.size, 0) == 95437,
   "In the example above, these directories are a and e; the sum of their total sizes is 95437 (94853 + 584). (As in this example, this process can count files more than once!)"
 );
 
-const solution_1_dumb = (input) => {
-  const tree = parse_tree(input);
-  const all_folders = walk_tree_dumb(tree);
-  const target_folders = all_folders.filter((f) => f.size <= size_threshold);
-  target_folders.sort((a, b) => +a.size - +b.size);
-
-  return target_folders.reduce((a, f) => {
-    if (+a + +f.size > size_threshold) return a;
-    else return +a + +f.size;
-  }, 0);
-};
-
-const solution_1_backtracked = (input) => {
-  const tree = parse_tree(input);
-  const all_folders = walk_tree_dumb(tree);
-  const target_folders = all_folders.filter((f) => f.size <= size_threshold);
-
-  return backrack_search(target_folders, size_threshold);
-};
-
 const solution_1 = (input) => {
   const tree = parse_tree(input);
-  const all_folders = walk_tree_dumb(tree);
+  const all_folders = walk_over_all_folders(tree);
   const target_folders = all_folders.filter((f) => f.size <= size_threshold);
   target_folders.sort((a, b) => +a.size - +b.size);
 
@@ -1214,52 +1146,24 @@ const solution_1 = (input) => {
 
 // solution for 1st part
 console.table({
-  "part 1, walk_tree": walk_tree(parse_tree(input), size_threshold).reduce(
-    (a, f) => +a + +f.size,
-    0
-  ), // naive approach: walk tree by folders until size sum exceeds target value
-
-  "part 1, walk_tree_excluding": walk_tree_excluding(
-    parse_tree(input),
-    size_threshold
-  ).reduce((a, f) => +a + +f.size, 0), // exclude children of already targeted folders
-
-  "part 1, walk_tree_dumb": solution_1_dumb(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
-
-  "part 1, backrack_search": solution_1_backtracked(input), // the closest sum of all elements: https://www.baeldung.com/cs/subset-of-numbers-closest-to-target
-
-  "part 1, walk_tree_dumbest": solution_1(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
+  "part 1": solution_1(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
 });
 
-// part 1, walk_tree
-// 98822
-// part 1, walk_tree_excluding
-// 98822
-// part 1, walk_tree_dumb
-// 96176
-// part 1, backrack_search
-// 99978
-// all guesses are wrong
-
-// part 1, walk_tree_dumbest - right answer
-// 1454188
-
 // 2nd part
-
 const total_space = 70000000;
 const required_space = 30000000;
 
 // task is just 'find smallest folder of given size or more'
-
 const solution_2 = (input) => {
   const tree = parse_tree(input);
 
   const remaining_space = total_space - tree.size;
   const target_size = required_space - remaining_space;
 
-  const all_folders = walk_tree_dumb(tree);
-  all_folders.sort((a, b) => +a.size - +b.size);
-  const target = all_folders.filter((f) => f.size >= target_size)[0];
+  const all_folders = walk_over_all_folders(tree);
+  const target_folders = all_folders.filter((f) => f.size >= target_size);
+  target_folders.sort((a, b) => +a.size - +b.size); // small to big
+  const target = target_folders[0]; // first smallest folder
 
   return target.size;
 };
