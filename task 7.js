@@ -1195,7 +1195,7 @@ const solution_1_dumb = (input) => {
   }, 0);
 };
 
-const solution_1 = (input) => {
+const solution_1_backtracked = (input) => {
   const tree = parse_tree(input);
   const all_folders = walk_tree_dumb(tree);
   const target_folders = all_folders.filter((f) => f.size <= size_threshold);
@@ -1203,7 +1203,7 @@ const solution_1 = (input) => {
   return backrack_search(target_folders, size_threshold);
 };
 
-const solution_1_dumbest = (input) => {
+const solution_1 = (input) => {
   const tree = parse_tree(input);
   const all_folders = walk_tree_dumb(tree);
   const target_folders = all_folders.filter((f) => f.size <= size_threshold);
@@ -1226,9 +1226,9 @@ console.table({
 
   "part 1, walk_tree_dumb": solution_1_dumb(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
 
-  "part 1, backrack_search": solution_1(input), // the closest sum of all elements: https://www.baeldung.com/cs/subset-of-numbers-closest-to-target
+  "part 1, backrack_search": solution_1_backtracked(input), // the closest sum of all elements: https://www.baeldung.com/cs/subset-of-numbers-closest-to-target
 
-  "part 1, walk_tree_dumbest": solution_1_dumbest(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
+  "part 1, walk_tree_dumbest": solution_1(input), // get all folders, sort descending and filter those that less or equal. Sum up to target value
 });
 
 // part 1, walk_tree
@@ -1245,9 +1245,29 @@ console.table({
 // 1454188
 
 // 2nd part
-const solution_2 = (input) => {};
 
-console.assert(solution_2(test_case_1) == "case1", "pt2 case1 condition");
+const total_space = 70000000;
+const required_space = 30000000;
+
+// task is just 'find smallest folder of given size or more'
+
+const solution_2 = (input) => {
+  const tree = parse_tree(input);
+
+  const remaining_space = total_space - tree.size;
+  const target_size = required_space - remaining_space;
+
+  const all_folders = walk_tree_dumb(tree);
+  all_folders.sort((a, b) => +a.size - +b.size);
+  const target = all_folders.filter((f) => f.size >= target_size)[0];
+
+  return target.size;
+};
+
+console.assert(
+  solution_2(test_case_1) == 24933642,
+  "Between these, choose the smallest: d, increasing unused space by 24933642"
+);
 
 // solution for 2nd part
 console.table({
