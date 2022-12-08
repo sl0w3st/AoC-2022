@@ -180,14 +180,78 @@ console.assert(
   "With 16 trees visible on the edge and another 5 visible in the interior, a total of 21 trees are visible in this arrangement."
 );
 
-// solution for 2nd part
+// solution for 1st part
 console.table({
   "part 1": solution_1(input),
 });
 
 // part 2
-const solution_2 = (input) => {};
-console.assert(solution_2(test_input) == 2, "test part 2");
+
+const get_tree_scenic_score = (x, y, forest, log = false) => {
+  const height = forest.length;
+  const width = forest[0].length;
+
+  const current_tree = forest[y][x];
+
+  const up = forest
+    .slice(0, y)
+    .map((l) => l[x])
+    .reverse();
+  const down = forest.slice(y + 1, height).map((l) => l[x]);
+  const left = forest[y].slice(0, x).reverse();
+  const right = forest[y].slice(x + 1, width);
+
+  const highest_up = up.findIndex((t) => t >= current_tree);
+  const score_up = highest_up == -1 ? up.length : highest_up + 1;
+
+  const highest_down = down.findIndex((t) => t >= current_tree);
+  const score_down = highest_down == -1 ? down.length : highest_down + 1;
+
+  const highest_left = left.findIndex((t) => t >= current_tree);
+  const score_left = highest_left == -1 ? left.length : highest_left + 1;
+
+  const highest_right = right.findIndex((t) => t >= current_tree);
+  const score_right = highest_right == -1 ? right.length : highest_right + 1;
+
+  if (log)
+    console.log({
+      coords: { x, y, height, width },
+      current_tree,
+      dirs: { left, right, up, down },
+      scores: { score_left, score_right, score_up, score_down },
+    });
+
+  return score_left * score_right * score_up * score_down;
+};
+
+console.assert(
+  get_tree_scenic_score(2, 1, mapped_test_case) == 4,
+  "For this tree, this is 4 (found by multiplying 1 * 1 * 2 * 2)."
+);
+console.assert(
+  get_tree_scenic_score(2, 3, mapped_test_case) == 8,
+  "This tree's scenic score is 8 (2 * 2 * 1 * 2); this is the ideal spot for the tree house."
+);
+
+const solution_2 = (input) => {
+  const tree_arrays = input.split("\n").map((l) => l.split(""));
+
+  return tree_arrays.reduce(
+    (acc, t_arr, y) =>
+      Math.max(
+        acc,
+        t_arr.reduce(
+          (a, t, x) => Math.max(a, get_tree_scenic_score(x, y, tree_arrays)),
+          0
+        )
+      ),
+    0
+  );
+};
+console.assert(
+  solution_2(test_input) == 8,
+  "This tree's scenic score is 8 (2 * 2 * 1 * 2); this is the ideal spot for the tree house."
+);
 
 // solution for 2nd part
 console.table({
