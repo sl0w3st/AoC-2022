@@ -2017,9 +2017,9 @@ const get_tail_move = (head, tail) => {
   const distance_check = Math.abs(dx) <= 1 && Math.abs(dy) <= 1;
   if (distance_check) return tail;
 
-  const a_x = (dx != 0 && (dx > 0 ? 1 : -1)) || 0;
-  const a_y = (dy != 0 && (dy > 0 ? 1 : -1)) || 0;
-  return { x: tail.x + a_x, y: tail.y + a_y };
+  const a_x = dx > 0 ? 1 : -1;
+  const a_y = dy > 0 ? 1 : -1;
+  return { x: tail.x + (dx && a_x), y: tail.y + (dy && a_y) };
 };
 
 const move_head = (head, move) => {
