@@ -2010,13 +2010,12 @@ R 2`;
 
 // part 1
 
-//returns null if no move is needed
 const get_tail_move = (head, tail) => {
   const dx = head.x - tail.x;
   const dy = head.y - tail.y;
 
   const distance_check = Math.abs(dx) <= 1 && Math.abs(dy) <= 1;
-  if (distance_check) return null;
+  if (distance_check) return tail;
 
   const a_x = (dx != 0 && (dx > 0 ? 1 : -1)) || 0;
   const a_y = (dy != 0 && (dy > 0 ? 1 : -1)) || 0;
@@ -2057,11 +2056,8 @@ const solution_1 = (input) => {
 
   moves.forEach((move) => {
     head = move_head(head, move);
-    const tail_next_move = get_tail_move(head, tail);
-    if (tail_next_move) {
-      tail = tail_next_move;
-      tail_moves[`${tail.x}:${tail.y}`] = true;
-    }
+    tail = get_tail_move(head, tail);
+    tail_moves[`${tail.x}:${tail.y}`] = true;
   });
 
   return Object.values(tail_moves).length;
@@ -2089,7 +2085,7 @@ const solution_2 = (input) => {
       if (k_i == 0) return (knots[0] = move_head(knot, move)); //head
 
       // walk every knot
-      const new_knot = get_tail_move(knots[k_i - 1], knot) || knot;
+      const new_knot = get_tail_move(knots[k_i - 1], knot);
       knots[k_i] = new_knot;
       if (k_i == knots.length - 1)
         tail_moves[`${new_knot.x}:${new_knot.y}`] = true;
