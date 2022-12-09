@@ -2010,12 +2010,14 @@ R 2`;
 
 // part 1
 
+//returns null if no move is needed
 const get_tail_move = (head, tail) => {
   const dx = head.x - tail.x;
   const dy = head.y - tail.y;
 
   const distance_check = Math.abs(dx) <= 1 && Math.abs(dy) <= 1;
   if (distance_check) return null;
+
   const a_x = (dx != 0 && (dx > 0 ? 1 : -1)) || 0;
   const a_y = (dy != 0 && (dy > 0 ? 1 : -1)) || 0;
   return { x: tail.x + a_x, y: tail.y + a_y };
@@ -2075,10 +2077,42 @@ console.table({
 });
 
 // part 2
-const solution_2 = (input) => {};
+const solution_2 = (input) => {
+  const moves = [];
+  input.split("\n").forEach((line) => moves.push(...parse_line(line)));
+
+  let knots = Array.from({ length: 10 }, (_) => ({ x: 0, y: 0 }));
+  const tail_moves = { "0:0": true };
+
+  moves.forEach((move) => {
+    knots.forEach((knot, k_i) => {
+      if (k_i == 0) return (knots[0] = move_head(knot, move)); //head
+
+      // walk every knot
+      const new_knot = get_tail_move(knots[k_i - 1], knot) || knot;
+      knots[k_i] = new_knot;
+      if (k_i == knots.length - 1)
+        tail_moves[`${new_knot.x}:${new_knot.y}`] = true;
+    });
+  });
+
+  return Object.values(tail_moves).length;
+};
 console.assert(
-  solution_2(test_input) == 8,
-  "This tree's scenic score is 8 (2 * 2 * 1 * 2); this is the ideal spot for the tree house."
+  solution_2(test_input) == 1,
+  "In this example, the tail never moves, and so it only visits 1 position."
+);
+const test_input_2 = `R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`;
+console.assert(
+  solution_2(test_input_2) == 36,
+  "Now, the tail (9) visits 36 positions (including s) at least once"
 );
 
 // solution for 2nd part
