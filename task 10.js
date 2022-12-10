@@ -145,22 +145,16 @@ noop
 noop
 noop`;
 
-const process_command = (command, state) => {
-  const tick = () => {
-    state.tick++;
-    if ((+state.tick - 20) % 40 == 0)
-      state.signals.push(+state.value * +state.tick);
-    // console.log({
-    //   tick,
-    //   ...command,
-    //   ...state,
-    //   flag: (+state.tick - 20) % 40 == 0,
-    // });
-  };
+const tick = (state) => {
+  state.tick++;
+  if ((+state.tick - 20) % 40 == 0)
+    state.signals.push(+state.value * +state.tick);
+};
 
-  tick();
+const process_command = (command, state, tick) => {
+  tick(state);
   if (command.type == "addx") {
-    tick();
+    tick(state);
     state.value += +command.arg;
   }
 
@@ -174,7 +168,7 @@ const solution_1 = (input, until = 220) => {
   });
 
   commands.every((command) => {
-    process_command(command, state);
+    process_command(command, state, tick);
     return state.tick <= until;
   });
 
@@ -189,17 +183,54 @@ console.assert(
 );
 
 // part 2
-const solution_2 = (input) => {};
+const solution_2 = (input) => {
+  const CRT_width = 40;
+  const CRT_height = 6;
+
+  const CRT = Array.from({ length: CRT_height }, (_) => Array(CRT_width));
+
+  const state = { tick: 0, value: 1, signals: [] };
+  const commands = input.split("\n").map((line) => {
+    const [type, arg] = line.split(" ");
+    return { type, arg };
+  });
+
+  commands.forEach((command) => {
+    const crt_tick = (state) => {
+      tick(state);
+
+      // haha, tick offsets current coords by 1
+      const x = (state.tick - 1) % CRT_width;
+      const y = Math.floor(((state.tick - 1) / CRT_width) % CRT_height);
+
+      const lit = state.value - 1 <= x && state.value + 1 >= x; // one before and one after
+
+      // const marker = Array.from({ length: CRT_width }, (_, i) =>
+      //   state.value - 1 <= i && state.value + 1 >= i ? "#" : "."
+      // ).join(""); // func to vizualize marker position
+
+      // console.log({ tick: state.tick, x, y, lit, value: state.value, marker });
+      CRT[y][x] = lit ? "#" : ".";
+    };
+
+    process_command(command, state, crt_tick);
+
+    // console.log(CRT.map((l) => l.join("")).join("\n"));
+  });
+
+  console.log(CRT.map((l) => l.join("")).join("\n"));
+  return CRT.map((l) => l.join("")).join("\n");
+};
 
 console.assert(
-  solution_2(test_input) == 1,
-  "In this example, the tail never moves, and so it only visits 1 position."
-);
-const test_input_2 = ``;
-
-console.assert(
-  solution_2(test_input_2) == 36,
-  "Now, the tail (9) visits 36 positions (including s) at least once"
+  solution_2(test_input) ==
+    `##..##..##..##..##..##..##..##..##..##..
+###...###...###...###...###...###...###.
+####....####....####....####....####....
+#####.....#####.....#####.....#####.....
+######......######......######......####
+#######.......#######.......#######.....`,
+  "Allowing the program to run to completion causes the CRT to produce the following image:"
 );
 
 const input = `noop
