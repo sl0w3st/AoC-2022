@@ -49,23 +49,23 @@ const parse_monkey = (monkey_lines, feel_relief = true) => {
   const get_test_func = (test_item) => {
     switch (test_op) {
       case "divisible":
-        return (item) => BigInt(item) % BigInt(test_item);
+        return (item) => +item % +test_item;
     }
   };
 
   const get_inspection_func = (it1, op, it2) => {
-    const term1 = (item) => (it1 == "old" ? item : BigInt(it1));
-    const term2 = (item) => (it2 == "old" ? item : BigInt(it2));
+    const term1 = (item) => (it1 == "old" ? item : +it1);
+    const term2 = (item) => (it2 == "old" ? item : +it2);
     const operate = (a, b) => {
       switch (op) {
         case "+":
-          return BigInt(a) + BigInt(b);
+          return +a + +b;
         case "-":
-          return BigInt(a) - BigInt(b);
+          return +a - +b;
         case "*":
-          return BigInt(a) * BigInt(b);
+          return +a * +b;
         case "/":
-          return BigInt(a) / BigInt(b);
+          return +a / +b;
       }
     };
 
@@ -78,10 +78,11 @@ const parse_monkey = (monkey_lines, feel_relief = true) => {
   return {
     inspections: 0,
     items,
+    test_value: +test_item,
     test: (item) => {
       const after_inspection_value = inspection_func(item);
       const after_feeling_relief = feel_relief
-        ? after_inspection_value / 3n
+        ? Math.floor(after_inspection_value / 3)
         : after_inspection_value;
 
       if (test_func(after_feeling_relief) == 0)
@@ -98,8 +99,8 @@ const parse_monkey = (monkey_lines, feel_relief = true) => {
   };
 };
 
-const do_round = (monkeys) => {
-  monkeys.forEach((monkey, m_i) => {
+const do_round = (monkeys, cap) => {
+  monkeys.forEach((monkey) => {
     while (monkey.items.length > 0) {
       const current_item = monkey.items.shift();
 
@@ -107,7 +108,7 @@ const do_round = (monkeys) => {
 
       // console.log({ current_item, after: item, monkey: target });
 
-      monkeys[target].items.push(item);
+      monkeys[target].items.push(!cap ? item : +item % +cap);
       monkey.inspections++;
     }
   });
@@ -139,26 +140,22 @@ console.assert(
 const solution_2 = (input, log = false) => {
   const monkeys = parse(input, false);
 
+  const cap = monkeys.reduce((a, { test_value }) => +a * +test_value, 1);
+
   for (let i = 0; i < 10000; i++) {
-    try {
-      do_round(monkeys);
-    } catch (e) {
-      throw `${e}, step: ${i}`;
-    }
+    do_round(monkeys, cap);
     if (log) print_monkeys(monkeys);
   }
 
-  monkeys.sort((a, b) => +b.inspections - +a.inspections);
+  monkeys.sort((a, b) => b.inspections - a.inspections);
   const [first, second] = monkeys;
 
-  print_monkeys(monkeys);
-
-  return +first.inspections * +second.inspections;
+  return first.inspections * second.inspections;
 };
 
 console.assert(
   solution_2(test_input) == 2713310158,
-  "After 10000 rounds, the two most active monkeys inspected items 52166 and 52013 times. Multiplying these together, the level of monkey business in this situation is now 2713310158."
+  "Multiplying these together, the level of monkey business in this situation is now 2713310158"
 );
 
 const input = `Monkey 0:
